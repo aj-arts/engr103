@@ -193,6 +193,33 @@ void resetHotel(Hotel* hotel){
     }
 }
 
+//write a function that saves the hotel to a file
+void saveHotel(Hotel* hotel){
+    FILE* file = fopen("hotel.txt", "w");
+    for (int i=0; i<3; i++){
+        for (int j=0; j<10; j++){
+            if (hotel->floors[i].rooms[j].guest != NULL){
+                fprintf(file, "%s %d %d %d %d\n", hotel->floors[i].rooms[j].guest->lastName, hotel->floors[i].rooms[j].guest->numOccupants, hotel->floors[i].rooms[j].guest->roomNumber, hotel->floors[i].rooms[j].guest->floorNumber, hotel->floors[i].rooms[j].guest->nightlyRate);
+            }
+        }
+    }
+    fclose(file);
+}
+
+//write a function that loads the hotel from a file
+void loadHotel(Hotel* hotel){
+    FILE* file = fopen("hotel.txt", "r");
+    char lastName[20];
+    int numOccupants;
+    int roomNumber;
+    int floorNumber;
+    int nightlyRate;
+    while (fscanf(file, "%s %d %d %d %d\n", lastName, &numOccupants, &roomNumber, &floorNumber, &nightlyRate) != EOF){
+        addGuestToRoom(hotel, createGuest(lastName, numOccupants, nightlyRate), floorNumber, roomNumber);
+    }
+    fclose(file);
+}
+
 int main(){
     Hotel* hotel = malloc(sizeof(Hotel));
     char* lastName = malloc(sizeof(char)*20);
@@ -208,7 +235,9 @@ int main(){
         printf("6. Available rooms\n");
         printf("7. Preload guests\n");
         printf("8. Reset hotel\n");
-        printf("9. Exit\n");
+        printf("9. Save hotel\n");
+        printf("10. Load hotel\n");
+        printf("11. Exit\n");
         scanf("%d", &choice);
         switch (choice){
             case 1:
@@ -287,6 +316,12 @@ int main(){
                 resetHotel(hotel);
                 break;
             case 9:
+                saveHotel(hotel);
+                break;
+            case 10:
+                loadHotel(hotel);
+                break;
+            case 11:
                 return 0;
         }
     }
