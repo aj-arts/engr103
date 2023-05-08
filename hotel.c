@@ -206,7 +206,9 @@ int main(){
         printf("4. Nightly income\n");
         printf("5. Evacuation count\n");
         printf("6. Available rooms\n");
-        printf("7. Exit\n");
+        printf("7. Preload guests\n");
+        printf("8. Reset hotel\n");
+        printf("9. Exit\n");
         scanf("%d", &choice);
         switch (choice){
             case 1:
@@ -279,6 +281,12 @@ int main(){
                 printf("Floor no: 3, Available rooms: %d\n", availableRooms(hotel, 2));
                 break;
             case 7:
+                preloadGuests(hotel);
+                break;
+            case 8:
+                resetHotel(hotel);
+                break;
+            case 9:
                 return 0;
         }
     }
