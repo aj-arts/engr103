@@ -88,6 +88,7 @@ void addGuestToRoom(Hotel *hotel, Guest *guest, int floorNumber, int roomNumber)
 void removeGuestFromRoom(Hotel *hotel, int floorNumber, int roomNumber)
 {
     free(hotel->floors[floorNumber].rooms[roomNumber].guest);
+    hotel->floors[floorNumber].rooms[roomNumber].guest = NULL;
 }
 
 int preferredFloor(int nightlyRate)
@@ -115,7 +116,7 @@ void checkIn(Hotel *hotel, Guest *guest)
         for (int j=0; j<10; j++){
             if (hotel->floors[floorindex].rooms[j].guest == NULL){
                 addGuestToRoom(hotel, guest, floorindex, j);
-                printf("Guest %s checked in to room %d on floor %d\n", guest->lastName, j, floorindex);
+                printf("Guest %s checked in to room %d on floor %d\n", guest->lastName, j+1, floorindex+1);
                 return;
             }
         }
@@ -139,6 +140,59 @@ int nightlyIncome(Hotel *hotel)
     return totalIncome;
 }
 
+int totalGuests(Hotel *hotel)
+{
+    int totalGuests = 0;
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 10; j++)
+        {
+            if (hotel->floors[i].rooms[j].guest != NULL)
+            {
+                totalGuests += hotel->floors[i].rooms[j].guest->numOccupants;
+            }
+        }
+    }
+    return totalGuests;
+}
+
+int availableRooms(Hotel *hotel, int floorNumber)
+{
+    int availableRooms = 0;
+    for (int i = 0; i < 10; i++)
+    {
+        if (hotel->floors[floorNumber].rooms[i].guest == NULL)
+        {
+            availableRooms++;
+        }
+    }
+    return availableRooms;
+}
+
+//write a function that predloads the hotel with 10 guests
+void preloadGuests(Hotel* hotel){
+    checkIn(hotel, createGuest("Smith", 2, 100));
+    checkIn(hotel, createGuest("Johnson", 1, 90));
+    checkIn(hotel, createGuest("Williams", 3, 80));
+    checkIn(hotel, createGuest("Jones", 4, 100));
+    checkIn(hotel, createGuest("Brown", 2, 90));
+    checkIn(hotel, createGuest("Davis", 1, 80));
+    checkIn(hotel, createGuest("Miller", 3, 100));
+    checkIn(hotel, createGuest("Wilson", 4, 90));
+    checkIn(hotel, createGuest("Moore", 2, 80));
+    checkIn(hotel, createGuest("Taylor", 1, 100));
+}
+
+void resetHotel(Hotel* hotel){
+    for (int i=0; i<3; i++){
+        for (int j=0; j<10; j++){
+            if (hotel->floors[i].rooms[j].guest != NULL){
+                removeGuestFromRoom(hotel, i, j);
+            }
+        }
+    }
+}
+
 int main(){
     Hotel* hotel = malloc(sizeof(Hotel));
     char* lastName = malloc(sizeof(char)*20);
@@ -150,7 +204,9 @@ int main(){
         printf("2. Check out\n");
         printf("3. Print hotel\n");
         printf("4. Nightly income\n");
-        printf("5. Exit\n");
+        printf("5. Evacuation count\n");
+        printf("6. Available rooms\n");
+        printf("7. Exit\n");
         scanf("%d", &choice);
         switch (choice){
             case 1:
@@ -187,8 +243,26 @@ int main(){
                 printf("Enter room number: ");
                 int roomNumber;
                 scanf("%d", &roomNumber);
-                printf("Guest %s checked out of room %d on floor %d\n", hotel->floors[floorNumber].rooms[roomNumber].guest->lastName, roomNumber, floorNumber);
-                removeGuestFromRoom(hotel, floorNumber, roomNumber);
+                if (floorNumber > 3 || floorNumber < 1)
+                {
+                    printf("Invalid floor number\n");
+                    break;
+                }
+                if (roomNumber > 10 || roomNumber < 1)
+                {
+                    printf("Invalid room number\n");
+                    break;
+                }
+                floorNumber--;
+                roomNumber--;
+                if (hotel->floors[floorNumber].rooms[roomNumber].guest == NULL)
+                {
+                    printf("Room is empty\n");
+                    break;
+                } else{
+                    printf("Guest %s checked out of room %d on floor %d\n", hotel->floors[floorNumber].rooms[roomNumber].guest->lastName, roomNumber, floorNumber);
+                    removeGuestFromRoom(hotel, floorNumber, roomNumber);
+                }
                 break;
             case 3:
                 printHotel(hotel);
@@ -197,6 +271,14 @@ int main(){
                 printf("Nightly income: %d\n", nightlyIncome(hotel));
                 break;
             case 5:
+                printf("Evacuation count: %d\n", totalGuests(hotel));
+                break;
+            case 6:
+                printf("Floor no: 1, Available rooms: %d\n", availableRooms(hotel, 0));
+                printf("Floor no: 2, Available rooms: %d\n", availableRooms(hotel, 1));
+                printf("Floor no: 3, Available rooms: %d\n", availableRooms(hotel, 2));
+                break;
+            case 7:
                 return 0;
         }
     }
